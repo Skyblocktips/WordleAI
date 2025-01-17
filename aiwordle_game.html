@@ -278,17 +278,25 @@
             initializeGame();
         }
         
-        function aiGuess() {
-            if (aiPossibleWords.length === 0) return null;
+          function aiGuess() {
+        if (aiPossibleWords.length === 0) return null;
 
-            const guess = aiPossibleWords.shift();
-            const feedback = getFeedback(guess, targetWord);
-
-            aiPossibleWords = aiPossibleWords.filter(word => isValidWord(word, guess, feedback));
-            console.log("AI guessed:", guess); // Debugging
-            return { guess, feedback };
+        let guess;
+        if (difficulty === "easy") {
+            guess = aiPossibleWords[Math.floor(Math.random() * aiPossibleWords.length)];
+        } else if (difficulty === "medium") {
+            guess = aiPossibleWords[0]; // Simplistic AI logic for medium
+        } else {
+            // Hard difficulty: prioritize words based on feedback matching logic
+            guess = aiPossibleWords.find((word) => word.includes(targetWord[0])) || aiPossibleWords[0];
         }
 
+        const feedback = getFeedback(guess, targetWord);
+        aiPossibleWords = aiPossibleWords.filter((word) => isValidWord(word, guess, feedback));
+        console.log(`AI (${difficulty}) guessed:`, guess);
+        return { guess, feedback };
+        }
+        
         function updateRow(row, guess, feedback) {
             for (let i = 0; i < guess.length; i++) {
                 const box = row.children[i];
