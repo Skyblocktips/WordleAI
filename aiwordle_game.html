@@ -30,92 +30,6 @@
             font-size: 1.2em;
         }
 
-        /* How-to-play Section */
-        #how-to-play {
-            margin: 20px auto;
-            max-width: 600px;
-            padding: 20px;
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            text-align: left;
-            background-color: #111;
-        }
-
-        #how-to-play h2 {
-            text-shadow: 0 0 5px #00ff00;
-            font-size: 1.5em;
-        }
-
-        #how-to-play p {
-            font-size: 1em;
-            line-height: 1.5em;
-        }
-
-        /* Game Board */
-        #game-board {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .guess-pair {
-            display: flex;
-            justify-content: center;
-            margin: 10px 0;
-        }
-
-        .guess-row {
-            display: flex;
-            justify-content: center;
-            margin: 0 10px;
-        }
-
-        .letter-box {
-            width: 50px;
-            height: 50px;
-            margin: 2px;
-            font-size: 1.5em;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #444;
-            color: #00ff00;
-            border: 1px solid #666;
-        }
-
-        .correct {
-            background-color: #6aaa64;
-        }
-
-        .misplaced {
-            background-color: #c9b458;
-        }
-
-        .incorrect {
-            background-color: #d14749;
-        }
-
-        .ai-guess-box {
-            background-color: #333 !important; /* Ensure AI guesses do not reveal feedback */
-            color: #00ff00; /* Maintain consistent text color */
-        }
-
-        /* Input and Button Styling */
-        input, button {
-            margin: 10px;
-            padding: 10px;
-            font-size: 1em;
-            border: none;
-            border-radius: 5px;
-            background-color: #00ff00;
-            color: #000;
-        }
-
-        button:hover {
-            background-color: #558a50;
-        }
-
         /* Difficulty Section */
         #difficulty-selection {
             margin: 20px auto;
@@ -145,6 +59,21 @@
             background-color: #000;
             border-top: 2px solid #00ff00;
         }
+
+        button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            background-color: #00ff00;
+            color: #000;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #558a50;
+        }
     </style>
 </head>
 <body>
@@ -158,23 +87,7 @@
         <button onclick="setDifficulty('easy')">Easy</button>
         <button onclick="setDifficulty('medium')">Medium</button>
         <button onclick="setDifficulty('hard')">Hard</button>
-    </section>
-
-    <section id="how-to-play">
-        <h2>How to Play</h2>
-        <p>Welcome to Wordle 1v1 AI! Here’s how it works:</p>
-        <ul>
-            <li>Guess the secret word within the given number of attempts.</li>
-            <li>The AI will guess alongside you.</li>
-            <li>Feedback is given after each guess:
-                <ul>
-                    <li><span style="color: #6aaa64;">Green:</span> Correct letter and position.</li>
-                    <li><span style="color: #c9b458;">Yellow:</span> Correct letter, wrong position.</li>
-                    <li><span style="color: #d14749;">Red:</span> Incorrect letter.</li>
-                </ul>
-            </li>
-            <li>The game ends when either you or the AI guesses the word correctly or run out of attempts.</li>
-        </ul>
+        <button onclick="setDifficulty('impossible')">Impossible</button>
     </section>
 
     <div id="game-board"></div>
@@ -188,7 +101,7 @@
         let words = [];
         let difficulty = 'easy';
 
-        fetch('five_letter_words.json')
+        fetch('five-letter-words.json')
             .then(response => response.json())
             .then(data => {
                 words = data;
@@ -275,34 +188,30 @@
             return { guess, feedback };
         }
 
-        function makeGuess() {
-            const input = document.getElementById('guess-input');
-            const guess = input.value.toLowerCase();
+        function getFeedback(guess, target) {
+            const feedback = Array(target.length).fill("_");
+            const targetCounts = {};
 
-            if (guess.length !== targetWord.length) {
-                alert(`Please enter a ${targetWord.length}-letter word.`);
-                return;
+            for (const letter of target) {
+                targetCounts[letter] = (targetCounts[letter] || 0) + 1;
             }
 
-            const row = document.getElementById(`guess-row-${currentAttempt}`);
-            const feedback = getFeedback(guess, targetWord);
-
-            for (let i = 0; i < targetWord.length; i++) {
-                const box = row.children[i];
-                box.textContent = guess[i];
-                box.classList.remove('correct', 'misplaced', 'incorrect');
-
-                if (feedback[i] === 'G') {
-                    box.classList.add('correct');
-                } else if (feedback[i] === 'Y') {
-                    box.classList.add('misplaced');
-                } else {
-                    box.classList.add('incorrect');
+            for (let i = 0; i < guess.length; i++) {
+                if (guess[i] === target[i]) {
+                    feedback[i] = "G";
+                    targetCounts[guess[i]] -= 1;
                 }
             }
 
-        // Other game functions remain unchanged
+            for (let i = 0; i < guess.length; i++) {
+                if (feedback[i] === "_" && targetCounts[guess[i]] > 0) {
+                    feedback[i] = "Y";
+                    targetCounts[guess[i]] -= 1;
+                }
+            }
 
+            return feedback;
+        }
     </script>
 </body>
 </html>
