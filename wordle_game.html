@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordleAI Coin</title>
+    <title>WordleCoin AI</title>
     <style>
         body {
             font-family: 'Courier New', Courier, monospace;
@@ -50,18 +50,18 @@
         }
 
         .letter-box.correct {
-            background-color: #000000;
-            border-color: #08de04;
+            background-color: #6aaa64;
+            border-color: #6aaa64;
         }
 
         .letter-box.misplaced {
-            background-color: #000000;
-            border-color: #d5d900;
+            background-color: #c9b458;
+            border-color: #c9b458;
         }
 
         .letter-box.incorrect {
-            background-color: #000000;
-            border-color: #d90000;
+            background-color: #3a3a3c;
+            border-color: #3a3a3c;
         }
 
         input, button {
@@ -93,11 +93,38 @@
             font-size: 1em;
             text-shadow: 0 0 5px #00ff00;
         }
+
+        #leaderboard {
+            margin: 30px auto;
+            padding: 20px;
+            max-width: 600px;
+            background-color: #111;
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+            text-align: left;
+        }
+
+        #leaderboard h2 {
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        #leaderboard ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #leaderboard li {
+            font-size: 1.2em;
+            margin: 5px 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>WordleAI Coin</h1>
+        <h1>Wordle Hacker Mode</h1>
         <p>Can you guess the word in time?</p>
     </header>
 
@@ -121,7 +148,8 @@
         };
 
         const maxAttempts = settings[difficulty] || 6; // Default to medium if difficulty is not found
-        const targetWord = ["trump"; "karen"; "fanum"; "sigma"; "ligma"; "thicc"; "stonk"; "chads"; "clout"; "drake"; "casoh"; "swift"] // Replace with random word logic
+        const words = ["trump", "karen", "fanum", "sigme", "ligma", "mango", "thicc", "stonk", "chads", "clout"];
+const targetWord = words[Math.floor(Math.random() * words.length)]; // Replace with random word logic
         let currentAttempt = 0;
 
         function initializeGame() {
