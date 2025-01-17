@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker-Style Wordle Game</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #00ff00;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        header {
+            padding: 20px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin: 0;
+        }
+
+        #game-board {
+            margin-top: 20px;
+        }
+
+        .guess-row {
+            margin: 10px auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .letter-box {
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            background-color: #444;
+            border: 2px solid #666;
+            color: #00ff00;
+        }
+
+        .letter-box.correct {
+            background-color: #000000;
+            border-color: #08de04;
+        }
+
+        .letter-box.misplaced {
+            background-color: #000000;
+            border-color: #d5d900;
+        }
+
+        .letter-box.incorrect {
+            background-color: #000000;
+            border-color: #d90000;
+        }
+
+        input, button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            border: none;
+            background-color: #00ff00;
+            color: #000;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #558a50;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        footer {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #000;
+            font-size: 1em;
+            text-shadow: 0 0 5px #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Wordle Coin</h1>
+        <p>Can you guess the word in time?</p>
+    </header>
+
+    <div id="game-board"></div>
+    <div id="result"></div>
+
+    <footer>
+        <p>&copy; 2025 Wordle Challenge. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Extract difficulty from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const difficulty = urlParams.get('difficulty');
+
+        const settings = {
+            easy: 8,
+            medium: 6,
+            hard: 4,
+            impossible: 2
+        };
+
+        const maxAttempts = settings[difficulty] || 6; // Default to medium if difficulty is not found
+        const targetWord = "apple"; // Replace with random word logic
+        let currentAttempt = 0;
+
+        function initializeGame() {
+            const gameBoard = document.getElementById('game-board');
+
+            for (let i = 0; i < maxAttempts; i++) {
+                const row = document.createElement('div');
+                row.classList.add('guess-row');
+                row.id = `guess-row-${i}`;
+
+                for (let j = 0; j < targetWord.length; j++) {
+                    const box = document.createElement('div');
+                    box.classList.add('letter-box');
+                    row.appendChild(box);
+                }
+
+                gameBoard.appendChild(row);
+            }
+
+            const inputRow = document.createElement('div');
+            inputRow.innerHTML = `
+                <input type="text" id="guess-input" maxlength="${targetWord.length}" placeholder="Enter guess">
+                <button onclick="makeGuess()">Submit</button>
+            `;
+            gameBoard.appendChild(inputRow);
+        }
+
+        function makeGuess() {
+            const input = document.getElementById('guess-input');
+            const guess = input.value.toLowerCase();
+
+            if (guess.length !== targetWord.length) {
+                alert(`Please enter a ${targetWord.length}-letter word.`);
+                return;
+            }
+
+            const row = document.getElementById(`guess-row-${currentAttempt}`);
+            const feedback = getFeedback(guess, targetWord);
+
+            for (let i = 0; i < targetWord.length; i++) {
+                const box = row.children[i];
+                box.textContent = guess[i];
+                box.classList.remove('correct', 'misplaced', 'incorrect');
+
+                if (feedback[i] === 'G') {
+                    box.classList.add('correct');
+                } else if (feedback[i] === 'Y') {
+                    box.classList.add('misplaced');
+                } else {
+                    box.classList.add('incorrect');
+                }
+            }
+
+            currentAttempt++;
+
+            if (guess === targetWord) {
+                document.getElementById('result').textContent = `🎉 Congratulations! You guessed the word.`;
+                disableInputs();
+                return;
+            }
+
+            if (currentAttempt === maxAttempts) {
+                document.getElementById('result').textContent = `😞 Sorry, you've run out of attempts. The word was: ${targetWord}`;
+                disableInputs();
+            }
+
+            input.value = '';
+        }
+
+        function getFeedback(guess, target) {
+            const feedback = Array(target.length).fill('_');
+            const targetCount = {};
+
+            for (const letter of target) {
+                targetCount[letter] = (targetCount[letter] || 0) + 1;
+            }
+
+            for (let i = 0; i < guess.length; i++) {
+                if (guess[i] === target[i]) {
+                    feedback[i] = 'G';
+                    targetCount[guess[i]] -= 1;
+                }
+            }
+
+            for (let i = 0; i < guess.length; i++) {
+                if (feedback[i] === '_' && target.includes(guess[i]) && targetCount[guess[i]] > 0) {
+                    feedback[i] = 'Y';
+                    targetCount[guess[i]] -= 1;
+                }
+            }
+
+            return feedback;
+        }
+
+        function disableInputs() {
+            document.querySelector('input').disabled = true;
+            document.querySelector('button').disabled = true;
+        }
+
+        initializeGame();
+    </script>
+</body>
+</html>
