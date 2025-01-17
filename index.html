@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wordle Game Landing Page</title>
+    <title>WordleAI Coin</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 0;
-            background-color: #282c34;
-            color: #ffffff;
+            background-color: #000;
+            color: #00ff00;
             text-align: center;
+            overflow: auto;
         }
 
         header {
             padding: 20px;
-            background-color: #1e1e24;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-shadow: 0 0 10px #00ff00;
         }
 
         header h1 {
@@ -26,108 +26,131 @@
         }
 
         header p {
-            margin: 10px 0 0;
             font-size: 1.2em;
-            color: #cfcfcf;
+            margin: 10px 0 0;
         }
 
         .difficulty-section, .social-links, .cta-section {
             margin: 30px auto;
             padding: 20px;
             max-width: 800px;
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00ff00;
         }
 
         .difficulty-section h2, .social-links h2, .cta-section h2 {
             font-size: 2em;
             margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ff00;
         }
 
         .difficulty-buttons button {
             margin: 10px;
             padding: 15px 30px;
             font-size: 1.2em;
-            border: none;
+            border: 2px solid #00ff00;
+            background: none;
+            color: #00ff00;
             border-radius: 5px;
             cursor: pointer;
+            text-shadow: 0 0 10px #00ff00;
+            transition: all 0.3s ease;
         }
 
         .difficulty-buttons button:hover {
-            opacity: 0.9;
+            background-color: #00ff00;
+            color: #000;
         }
-
-        .easy { background-color: #6aaa64; color: #fff; }
-        .medium { background-color: #c9b458; color: #fff; }
-        .hard { background-color: #f18c8e; color: #fff; }
-        .impossible { background-color: #d62828; color: #fff; }
 
         .social-links a {
             margin: 10px;
             padding: 10px 20px;
             font-size: 1.2em;
             text-decoration: none;
-            color: #ffffff;
-            background-color: #1d3557;
+            color: #000;
+            background-color: #00ff00;
             border-radius: 5px;
+            box-shadow: 0 0 10px #00ff00;
+            transition: all 0.3s ease;
         }
 
         .social-links a:hover {
-            background-color: #457b9d;
+            background-color: #000;
+            color: #00ff00;
         }
 
         .cta-section {
-            background-color: #1e1e24;
             padding: 40px;
-            border-radius: 10px;
+            border: 2px dashed #00ff00;
+            animation: pulse 2s infinite;
         }
 
         .cta-section p {
             margin: 20px 0;
             font-size: 1.5em;
-            color: #cfcfcf;
         }
 
         footer {
             margin-top: 30px;
             padding: 20px;
-            background-color: #1e1e24;
+            background-color: #000;
             font-size: 1em;
+            text-shadow: 0 0 5px #00ff00;
         }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 10px #00ff00;
+            }
+            50% {
+                box-shadow: 0 0 20px #00ff00;
+            }
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        .typing {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 3px solid #00ff00;
+            animation: typing 3s steps(30, end) infinite;
+        }
+
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Wordle Challenge</h1>
-    <p>Select a difficulty, play the game, and connect with us!</p>
+    <h1 class="typing">Welcome to the WordleAI Coin</h1>
+    <p>Select your difficulty level and test your skills!</p>
 </header>
 
 <section class="difficulty-section">
-    <div style="margin-top: 20px;">
-        <h2>AI Versus</h2>
-        <button class="easy" onclick="startAIGame('easy')">Easy AI</button>
-        <button class="medium" onclick="startAIGame('medium')">Medium AI</button>
-        <button class="hard" onclick="startAIGame('hard')">Hard AI</button>
-        <button class="impossible" onclick="startAIGame('impossible')">Impossible AI</button>
-    </div>
     <h2>Select Your Difficulty</h2>
     <div class="difficulty-buttons">
-        <button class="easy" onclick="startGame('easy')">Easy (8 attempts)</button>
-        <button class="medium" onclick="startGame('medium')">Medium (6 attempts)</button>
-        <button class="hard" onclick="startGame('hard')">Hard (4 attempts)</button>
-        <button class="impossible" onclick="startGame('impossible')">Impossible (2 attempts)</button>
+        <button onclick="startGame('easy')">Easy (8 attempts)</button>
+        <button onclick="startGame('medium')">Medium (6 attempts)</button>
+        <button onclick="startGame('hard')">Hard (4 attempts)</button>
+        <button onclick="startGame('impossible')">Impossible (2 attempts)</button>
+	<button onclick="startAIGame()">Play Against the AI</button>
     </div>
 </section>
 
 <section class="social-links">
     <h2>Connect with Us</h2>
-    <a href="https://t.me/yourtelegram" target="_blank">Join Telegram</a>
-    <a href="https://twitter.com/yourtwitter" target="_blank">Follow on Twitter</a>
+    <a href="https://t.me/wordleai" target="_blank">Join Telegram</a>
+    <a href="https://x.com/Wordle__AI" target="_blank">Follow on Twitter</a>
 </section>
 
 <section class="cta-section">
-    <h2>Call to Action</h2>
-    <p>Play Wordle and experience the ultimate guessing game. Share your scores and connect with our community!</p>
-    <a href="https://yourproject.com" target="_blank" style="padding: 15px 30px; font-size: 1.2em; background-color: #6aaa64; color: white; text-decoration: none; border-radius: 5px;">Get Started</a>
+    <h2>Buy the WordleAI Coin</h2>
+    <p>Buy the WordleAI Coin and join the community right now! Join us on Twitter and Telegram aswell!</p>
+    <a href="https://yourproject.com" target="_blank">Get Started</a>
 </section>
 
 <footer>
@@ -140,12 +163,13 @@
         window.location.href = `wordle_game.html?difficulty=${difficulty}`;
     }
 </script>
-    <script>
-        function startAIGame(difficulty) {
-            // Redirect to the AI game page with the difficulty parameter
-            window.location.href = `aiwordle_game.html?difficulty=${difficulty}`;
-        }
-    </script>
+
+<script>
+    function startAIGame() {
+        // Redirect to the AI game page
+        window.location.href = 'aiwordle_game.html';
+    }
+</script>
 
 </body>
 </html>
