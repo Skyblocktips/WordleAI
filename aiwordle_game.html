@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle 1v1 AI</title>
+    <style>
+        /* Body Styling */
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #00ff00;
+            text-align: center;
+        }
+
+        /* Header Styling */
+        header {
+            padding: 20px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin: 0;
+        }
+
+        header p {
+            font-size: 1.2em;
+        }
+
+        /* How-to-play Section */
+        #how-to-play {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            text-align: left;
+            background-color: #111;
+        }
+
+        #how-to-play h2 {
+            text-shadow: 0 0 5px #00ff00;
+            font-size: 1.5em;
+        }
+
+        #how-to-play p {
+            font-size: 1em;
+            line-height: 1.5em;
+        }
+
+        /* Game Board */
+        #game-board {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .guess-pair {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .guess-row {
+            display: flex;
+            justify-content: center;
+            margin: 0 10px;
+        }
+
+        .letter-box {
+            width: 50px;
+            height: 50px;
+            margin: 2px;
+            font-size: 1.5em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #444;
+            color: #00ff00;
+            border: 1px solid #666;
+        }
+
+        .correct {
+            background-color: #6aaa64;
+        }
+
+        .misplaced {
+            background-color: #c9b458;
+        }
+
+        .incorrect {
+            background-color: #d14749;
+        }
+
+        .ai-guess-box {
+            background-color: #333 !important; /* Ensure AI guesses do not reveal feedback */
+            color: #00ff00; /* Maintain consistent text color */
+        }
+
+        /* Input and Button Styling */
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            background-color: #00ff00;
+            color: #000;
+        }
+
+        button:hover {
+            background-color: #558a50;
+        }
+
+        /* Result Section */
+        #result {
+            margin-top: 20px;
+            font-size: 1.5em;
+        }
+
+        /* Footer Styling */
+        footer {
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 1em;
+            text-shadow: 0 0 5px #00ff00;
+            background-color: #000;
+            border-top: 2px solid #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Wordle 1v1 AI</h1>
+        <p>Player vs AI: Can you win?</p>
+    </header>
+
+    <section id="how-to-play">
+        <h2>How to Play</h2>
+        <p>Welcome to Wordle 1v1 AI! Here’s how it works:</p>
+        <ul>
+            <li>Guess the secret word within the given number of attempts.</li>
+            <li>The AI will guess alongside you.</li>
+            <li>Feedback is given after each guess:
+                <ul>
+                    <li><span style="color: #6aaa64;">Green:</span> Correct letter and position.</li>
+                    <li><span style="color: #c9b458;">Yellow:</span> Correct letter, wrong position.</li>
+                    <li><span style="color: #d14749;">Red:</span> Incorrect letter.</li>
+                </ul>
+            </li>
+            <li>The game ends when either you or the AI guesses the word correctly or run out of attempts.</li>
+        </ul>
+    </section>
+
+    <div id="game-board"></div>
+    <div id="result"></div>
+
+    <footer>
+        <p>&copy; 2025 Wordle Challenge. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        let words = [];
+
+        // Fetch full dictionary of five-letter words
+        fetch('five-letter-words.json') // Replace with the actual URL or local path
+            .then(response => response.json())
+            .then(data => {
+                words = data;
+                initializeGame(); // Initialize game after words are loaded
+            })
+            .catch(error => console.error('Error loading dictionary:', error));
+
+        let targetWord = ""; // Target word will be chosen after dictionary loads
+        let aiPossibleWords = [];
+        const maxAttempts = 6;
+        let currentAttempt = 0;
+
+        function initializeGame() {
+            if (!words.length) {
+                console.error("Word list is empty or not loaded yet.");
+                return;
+            }
+
+            targetWord = words[Math.floor(Math.random() * words.length)];
+            aiPossibleWords = [...words];
+
+            const gameBoard = document.getElementById("game-board");
+            gameBoard.innerHTML = ""; // Clear the game board before initialization
+
+            // Create paired rows for player and AI
+            for (let i = 0; i < maxAttempts; i++) {
+                const guessPair = document.createElement("div");
+                guessPair.classList.add("guess-pair");
+
+                const playerRow = document.createElement("div");
+                playerRow.classList.add("guess-row");
+                playerRow.id = `player-row-${i}`;
+
+                const aiRow = document.createElement("div");
+                aiRow.classList.add("guess-row");
+                aiRow.id = `ai-row-${i}`;
+
+                for (let j = 0; j < 5; j++) {
+                    const playerBox = document.createElement("div");
+                    playerBox.classList.add("letter-box");
+                    playerRow.appendChild(playerBox);
+
+                    const aiBox = document.createElement("div");
+                    aiBox.classList.add("letter-box", "ai-guess-box");
+                    aiRow.appendChild(aiBox);
+                }
+
+                guessPair.appendChild(playerRow);
+                guessPair.appendChild(aiRow);
+                gameBoard.appendChild(guessPair);
+            }
+
+            const inputRow = document.createElement("div");
+            inputRow.innerHTML = `
+                <input type="text" id="guess-input" maxlength="5" placeholder="Enter your guess">
+                <button onclick="makeGuess()">Submit</button>
+            `;
+            gameBoard.appendChild(inputRow);
+
+            console.log("Target word is:", targetWord); // Debugging
+        }
+
+        function makeGuess() {
+            const input = document.getElementById("guess-input");
+            const guess = input.value.toLowerCase();
+
+            if (guess.length !== 5) {
+                alert("Please enter a 5-letter word.");
+                return;
+            }
+
+            // Player's Turn
+            const playerRow = document.getElementById(`player-row-${currentAttempt}`);
+            const playerFeedback = getFeedback(guess, targetWord);
+            updateRow(playerRow, guess, playerFeedback);
+
+            if (guess === targetWord) {
+                document.getElementById("result").textContent = "🎉 You win!";
+                disableInputs();
+                return;
+            }
+
+            // AI's Turn
+            const aiTurn = aiGuess();
+            if (aiTurn) {
+                const aiRow = document.getElementById(`ai-row-${currentAttempt}`);
+                updateRow(aiRow, aiTurn.guess, null); // No feedback coloring for AI
+
+                if (aiTurn.guess === targetWord) {
+                    document.getElementById("result").textContent = "🤖 AI wins!";
+                    disableInputs();
+                    return;
+                }
+            }
+
+            currentAttempt++;
+            if (currentAttempt === maxAttempts) {
+                document.getElementById("result").textContent = `😞 Both you and the AI ran out of attempts. The word was "${targetWord}".`;
+                disableInputs();
+            }
+
+            input.value = "";
+        }
+
+        function aiGuess() {
+            if (aiPossibleWords.length === 0) return null;
+
+            const guess = aiPossibleWords.shift();
+            const feedback = getFeedback(guess, targetWord);
+
+            aiPossibleWords = aiPossibleWords.filter(word => isValidWord(word, guess, feedback));
+            console.log("AI guessed:", guess); // Debugging
+            return { guess, feedback };
+        }
+
+        function updateRow(row, guess, feedback) {
+            for (let i = 0; i < guess.length; i++) {
+                const box = row.children[i];
+                box.textContent = guess[i];
+                box.className = "letter-box"; // Reset classes
+                if (feedback) {
+                    if (feedback[i] === "G") box.classList.add("correct");
+                    if (feedback[i] === "Y") box.classList.add("misplaced");
+                    if (feedback[i] === "_") box.classList.add("incorrect");
+                }
+            }
+        }
+
+        function getFeedback(guess, target) {
+            const feedback = Array(target.length).fill("_");
+            const targetCounts = {};
+
+            for (const letter of target) {
+                targetCounts[letter] = (targetCounts[letter] || 0) + 1;
+            }
+
+            // Mark correct positions
+            for (let i = 0; i < guess.length; i++) {
+                if (guess[i] === target[i]) {
+                    feedback[i] = "G";
+                    targetCounts[guess[i]] -= 1;
+                }
+            }
+
+            // Mark misplaced positions
+            for (let i = 0; i < guess.length; i++) {
+                if (feedback[i] === "_" && targetCounts[guess[i]] > 0) {
+                    feedback[i] = "Y";
+                    targetCounts[guess[i]] -= 1;
+                }
+            }
+
+            return feedback;
+        }
+
+        function isValidWord(word, guess, feedback) {
+            for (let i = 0; i < guess.length; i++) {
+                if (feedback[i] === "G" && word[i] !== guess[i]) return false;
+                if (feedback[i] === "Y" && (!word.includes(guess[i]) || word[i] === guess[i])) return false;
+                if (feedback[i] === "_" && word.includes(guess[i])) return false;
+            }
+            return true;
+        }
+
+        function disableInputs() {
+            document.getElementById("guess-input").disabled = true;
+            document.querySelector("button").disabled = true;
+        }
+    </script>
+</body>
+</html>
