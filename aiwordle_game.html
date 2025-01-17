@@ -275,6 +275,34 @@
             return { guess, feedback };
         }
 
+         }
+
+        function makeGuess() {
+            const input = document.getElementById('guess-input');
+            const guess = input.value.toLowerCase();
+
+            if (guess.length !== targetWord.length) {
+                alert(`Please enter a ${targetWord.length}-letter word.`);
+                return;
+            }
+
+            const row = document.getElementById(`guess-row-${currentAttempt}`);
+            const feedback = getFeedback(guess, targetWord);
+
+            for (let i = 0; i < targetWord.length; i++) {
+                const box = row.children[i];
+                box.textContent = guess[i];
+                box.classList.remove('correct', 'misplaced', 'incorrect');
+
+                if (feedback[i] === 'G') {
+                    box.classList.add('correct');
+                } else if (feedback[i] === 'Y') {
+                    box.classList.add('misplaced');
+                } else {
+                    box.classList.add('incorrect');
+                }
+            }
+
         // Other game functions remain unchanged
 
     </script>
