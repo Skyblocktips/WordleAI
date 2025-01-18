@@ -173,10 +173,16 @@
             hard: 4,
             impossible: 2
         };
-
+        fetch('five_letter_words.json') // Replace with the actual URL or local path
+            .then(response => response.json())
+            .then(data => {
+                words = data;
+                initializeGame(); // Initialize game after words are loaded
+            })
+            .catch(error => console.error('Error loading dictionary:', error));
+        
         const maxAttempts = settings[difficulty] || 6; // Default to medium if difficulty is not found
-        const words = ["trump", "karen", "fanum", "sigma", "ligma", "mango", "thicc", "stonk", "chads", "clout", "drake", "casoh"];
-const targetWord = words[Math.floor(Math.random() * words.length)]; // Replace with random word logic
+        let targetWord = "" // Target word will be chosen after dictionary loads
         let currentAttempt = 0;
 
         function initializeGame() {
