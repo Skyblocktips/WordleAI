@@ -238,6 +238,9 @@ function initializeGame() {
     gameBoard.appendChild(inputRow);
 
     console.log(`AI game initialized with difficulty: ${difficulty}`);
+    console.log(`Current attempt: ${currentAttempt}`);
+    console.log(`AI possible words left: ${aiPossibleWords.length}`);
+
 }
 
 function makeGuess() {
@@ -273,7 +276,7 @@ function makeGuess() {
         }
     }
 
-   // Increment after both turns
+    // Increment the current attempt after both turns
     currentAttempt++;
 
     // Check if max attempts have been reached
@@ -283,7 +286,13 @@ function makeGuess() {
         return;
     }
 
-    input.value = ""; // Clear the input for the next turn
+    // Clear input for next turn
+    input.value = "";
+    input.focus();
+
+    console.log(`Current attempt: ${currentAttempt}`);
+    console.log(`AI possible words left: ${aiPossibleWords.length}`);
+
 }
 
   let difficulty = 'easy'; // Default difficulty
@@ -312,8 +321,12 @@ function aiGuess() {
 
     const feedback = getFeedback(guess, targetWord);
     aiPossibleWords = aiPossibleWords.filter(word => isValidWord(word, guess, feedback));
-    console.log(`AI (${difficulty}) guessed:`, guess);
+    console.log(`AI (${difficulty}) guessed: ${guess}`);
     return { guess, feedback };
+
+    console.log(`Current attempt: ${currentAttempt}`);
+    console.log(`AI possible words left: ${aiPossibleWords.length}`);
+
 }
       
         function updateRow(row, guess, feedback) {
