@@ -138,6 +138,12 @@
         <h1>Wordle 1v1 AI</h1>
         <p>Player vs AI: Can you win?</p>
     </header>
+<section id="difficulty-selection">
+    <h2>Select AI Difficulty</h2>
+    <button onclick="setDifficulty('easy')">Easy AI</button>
+    <button onclick="setDifficulty('medium')">Medium AI</button>
+    <button onclick="setDifficulty('hard')">Hard AI</button>
+</section>
 
     <section id="how-to-play">
         <h2>How to Play</h2>
@@ -165,7 +171,6 @@
 
     <script>
         let words = [];
-        let difficulty = 'easy'; // Default difficulty
 
         // Fetch full dictionary of five-letter words
         fetch('five_letter_words.json') // Replace with the actual URL or local path
@@ -181,55 +186,55 @@
         const maxAttempts = 6;
         let currentAttempt = 0;
 
-        function initializeGame() {
-            if (!words.length) {
-                console.error("Word list is empty or not loaded yet.");
-                return;
-            }
+function initializeGame() {
+    if (!words.length) {
+        console.error("Word list is empty or not loaded yet.");
+        return;
+    }
 
-            targetWord = words[Math.floor(Math.random() * words.length)];
-            aiPossibleWords = [...words];
+    targetWord = words[Math.floor(Math.random() * words.length)];
+    aiPossibleWords = [...words];
+    currentAttempt = 0;
 
-            const gameBoard = document.getElementById("game-board");
-            gameBoard.innerHTML = ""; // Clear the game board before initialization
+    const gameBoard = document.getElementById("game-board");
+    gameBoard.innerHTML = "";
 
-            // Create paired rows for player and AI
-            for (let i = 0; i < maxAttempts; i++) {
-                const guessPair = document.createElement("div");
-                guessPair.classList.add("guess-pair");
+    for (let i = 0; i < maxAttempts; i++) {
+        const guessPair = document.createElement("div");
+        guessPair.classList.add("guess-pair");
 
-                const playerRow = document.createElement("div");
-                playerRow.classList.add("guess-row");
-                playerRow.id = `player-row-${i}`;
+        const playerRow = document.createElement("div");
+        playerRow.classList.add("guess-row");
+        playerRow.id = `player-row-${i}`;
 
-                const aiRow = document.createElement("div");
-                aiRow.classList.add("guess-row");
-                aiRow.id = `ai-row-${i}`;
+        const aiRow = document.createElement("div");
+        aiRow.classList.add("guess-row");
+        aiRow.id = `ai-row-${i}`;
 
-                for (let j = 0; j < 5; j++) {
-                    const playerBox = document.createElement("div");
-                    playerBox.classList.add("letter-box");
-                    playerRow.appendChild(playerBox);
+        for (let j = 0; j < 5; j++) {
+            const playerBox = document.createElement("div");
+            playerBox.classList.add("letter-box");
+            playerRow.appendChild(playerBox);
 
-                    const aiBox = document.createElement("div");
-                    aiBox.classList.add("letter-box", "ai-guess-box");
-                    aiRow.appendChild(aiBox);
-                }
-
-                guessPair.appendChild(playerRow);
-                guessPair.appendChild(aiRow);
-                gameBoard.appendChild(guessPair);
-            }
-
-            const inputRow = document.createElement("div");
-            inputRow.innerHTML = `
-                <input type="text" id="guess-input" maxlength="5" placeholder="Enter your guess">
-                <button onclick="makeGuess()">Submit</button>
-            `;
-            gameBoard.appendChild(inputRow);
-
-            console.log("Target word is:", targetWord); // Debugging
+            const aiBox = document.createElement("div");
+            aiBox.classList.add("letter-box", "ai-guess-box");
+            aiRow.appendChild(aiBox);
         }
+
+        guessPair.appendChild(playerRow);
+        guessPair.appendChild(aiRow);
+        gameBoard.appendChild(guessPair);
+    }
+
+    const inputRow = document.createElement("div");
+    inputRow.innerHTML = `
+        <input type="text" id="guess-input" maxlength="5" placeholder="Enter your guess">
+        <button onclick="makeGuess()">Submit</button>
+    `;
+    gameBoard.appendChild(inputRow);
+
+    console.log(`AI game initialized with difficulty: ${difficulty}`);
+}
 
         function makeGuess() {
             const input = document.getElementById("guess-input");
@@ -273,13 +278,16 @@
             input.value = "";
         }
 
-           function setDifficulty(level) {
-        difficulty = level; // Set the selected difficulty
-        console.log(`Difficulty set to ${level}`);
-        initializeGame(); // Reinitialize the game with the selected difficulty
-    }
+  let difficulty = 'easy'; // Default difficulty
+
+function setDifficulty(level) {
+    difficulty = level; // Set the selected difficulty
+    console.log(`AI Difficulty set to: ${level}`);
+    initializeGame(); // Reinitialize the game with the selected AI difficulty
+}
+
  
-   function aiGuess() {
+function aiGuess() {
     if (aiPossibleWords.length === 0) return null;
 
     let guess;
@@ -287,9 +295,12 @@
         guess = aiPossibleWords[Math.floor(Math.random() * aiPossibleWords.length)];
     } else if (difficulty === 'medium') {
         guess = aiPossibleWords[0]; // Simplistic AI logic for medium
-    } else {
-        // Hard difficulty: prioritize words based on feedback matching logic
+    } else if (difficulty === 'hard') {
+        // Hard AI prioritizes letters in the target word
         guess = aiPossibleWords.find(word => word.includes(targetWord[0])) || aiPossibleWords[0];
+    } else {
+        // Impossible AI: more advanced logic
+        guess = aiPossibleWords.find(word => word === targetWord) || aiPossibleWords[0];
     }
 
     const feedback = getFeedback(guess, targetWord);
