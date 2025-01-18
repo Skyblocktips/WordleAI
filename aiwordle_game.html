@@ -240,47 +240,50 @@ function initializeGame() {
     console.log(`AI game initialized with difficulty: ${difficulty}`);
 }
 
-        function makeGuess() {
-            const input = document.getElementById("guess-input");
-            const guess = input.value.toLowerCase();
+function makeGuess() {
+    const input = document.getElementById("guess-input");
+    const guess = input.value.toLowerCase();
 
-            if (guess.length !== 5) {
-                alert("Please enter a 5-letter word.");
-                return;
-            }
+    if (guess.length !== 5) {
+        alert("Please enter a 5-letter word.");
+        return;
+    }
 
-            // Player's Turn
-            const playerRow = document.getElementById(`player-row-${currentAttempt}`);
-            const playerFeedback = getFeedback(guess, targetWord);
-            updateRow(playerRow, guess, playerFeedback);
+    // Player's Turn
+    const playerRow = document.getElementById(`player-row-${currentAttempt}`);
+    const playerFeedback = getFeedback(guess, targetWord);
+    updateRow(playerRow, guess, playerFeedback);
 
-            if (guess === targetWord) {
-                document.getElementById("result").textContent = "🎉 You win!";
-                disableInputs();
-                return;
-            }
+    if (guess === targetWord) {
+        document.getElementById("result").textContent = "🎉 You win!";
+        disableInputs();
+        return;
+    }
 
-            // AI's Turn
-            const aiTurn = aiGuess();
-            if (aiTurn) {
-                const aiRow = document.getElementById(`ai-row-${currentAttempt}`);
-                updateRow(aiRow, aiTurn.guess, null); // No feedback coloring for AI
+    // AI's Turn
+    const aiTurn = aiGuess();
+    if (aiTurn) {
+        const aiRow = document.getElementById(`ai-row-${currentAttempt}`);
+        updateRow(aiRow, aiTurn.guess, null); // No feedback coloring for AI
 
-                if (aiTurn.guess === targetWord) {
-                    document.getElementById("result").textContent = "🤖 AI wins!";
-                    disableInputs();
-                    return;
-                }
-            }
-
-            currentAttempt++;
-            if (currentAttempt === maxAttempts) {
-                document.getElementById("result").textContent = `😞 Both you and the AI ran out of attempts. The word was "${targetWord}".`;
-                disableInputs();
-            }
-
-            input.value = "";
+        if (aiTurn.guess === targetWord) {
+            document.getElementById("result").textContent = "🤖 AI wins!";
+            disableInputs();
+            return;
         }
+    }
+
+    // Increment the current attempt
+    currentAttempt++;
+
+    // Check if max attempts have been reached
+    if (currentAttempt === maxAttempts) {
+        document.getElementById("result").textContent = `😞 Game over! The word was "${targetWord}".`;
+        disableInputs();
+    }
+
+    input.value = ""; // Clear the input for the next turn
+}
 
   let difficulty = 'easy'; // Default difficulty
 
@@ -295,15 +298,14 @@ function aiGuess() {
     if (aiPossibleWords.length === 0) return null;
 
     let guess;
-    if (difficulty === 'easy') {
+    if (difficulty === "easy") {
         guess = aiPossibleWords[Math.floor(Math.random() * aiPossibleWords.length)];
-    } else if (difficulty === 'medium') {
+    } else if (difficulty === "medium") {
         guess = aiPossibleWords[0]; // Simplistic AI logic for medium
-    } else if (difficulty === 'hard') {
-        // Hard AI prioritizes letters in the target word
+    } else if (difficulty === "hard") {
         guess = aiPossibleWords.find(word => word.includes(targetWord[0])) || aiPossibleWords[0];
     } else {
-        // Impossible AI: more advanced logic
+        // Impossible AI: always finds the target word
         guess = aiPossibleWords.find(word => word === targetWord) || aiPossibleWords[0];
     }
 
@@ -312,6 +314,7 @@ function aiGuess() {
     console.log(`AI (${difficulty}) guessed:`, guess);
     return { guess, feedback };
 }
+
         
         function updateRow(row, guess, feedback) {
             for (let i = 0; i < guess.length; i++) {
