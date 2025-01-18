@@ -165,6 +165,7 @@
 
     <script>
         let words = [];
+        let difficulty = 'easy'; // Default difficulty
 
         // Fetch full dictionary of five-letter words
         fetch('five_letter_words.json') // Replace with the actual URL or local path
@@ -273,29 +274,29 @@
         }
 
            function setDifficulty(level) {
-            difficulty = level;
-            console.log(`Difficulty set to ${level}`);
-            initializeGame();
-        }
-        
-          function aiGuess() {
-        if (aiPossibleWords.length === 0) return null;
+        difficulty = level; // Set the selected difficulty
+        console.log(`Difficulty set to ${level}`);
+        initializeGame(); // Reinitialize the game with the selected difficulty
+    }
+ 
+   function aiGuess() {
+    if (aiPossibleWords.length === 0) return null;
 
-        let guess;
-        if (difficulty === "easy") {
-            guess = aiPossibleWords[Math.floor(Math.random() * aiPossibleWords.length)];
-        } else if (difficulty === "medium") {
-            guess = aiPossibleWords[0]; // Simplistic AI logic for medium
-        } else {
-            // Hard difficulty: prioritize words based on feedback matching logic
-            guess = aiPossibleWords.find((word) => word.includes(targetWord[0])) || aiPossibleWords[0];
-        }
+    let guess;
+    if (difficulty === 'easy') {
+        guess = aiPossibleWords[Math.floor(Math.random() * aiPossibleWords.length)];
+    } else if (difficulty === 'medium') {
+        guess = aiPossibleWords[0]; // Simplistic AI logic for medium
+    } else {
+        // Hard difficulty: prioritize words based on feedback matching logic
+        guess = aiPossibleWords.find(word => word.includes(targetWord[0])) || aiPossibleWords[0];
+    }
 
-        const feedback = getFeedback(guess, targetWord);
-        aiPossibleWords = aiPossibleWords.filter((word) => isValidWord(word, guess, feedback));
-        console.log(`AI (${difficulty}) guessed:`, guess);
-        return { guess, feedback };
-        }
+    const feedback = getFeedback(guess, targetWord);
+    aiPossibleWords = aiPossibleWords.filter(word => isValidWord(word, guess, feedback));
+    console.log(`AI (${difficulty}) guessed:`, guess);
+    return { guess, feedback };
+}
         
         function updateRow(row, guess, feedback) {
             for (let i = 0; i < guess.length; i++) {
