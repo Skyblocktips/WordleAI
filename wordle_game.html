@@ -175,34 +175,50 @@
         };
         
         const maxAttempts = settings[difficulty] || 6; // Default to medium if difficulty is not found
-        const words = ["apple", "grape", "melon", "peach", "berry", "mango", "lemon", "plumb", "cherry", "banana"];
-const targetWord = words[Math.floor(Math.random() * words.length)]; // Replace with random word logic
+       let words = [];
+let targetWord = "";
+
+fetch('five-letter-words.json') // Path to the JSON file
+    .then(response => response.json())
+    .then(data => {
+        words = data; // Assign words from JSON file
+        targetWord = words[Math.floor(Math.random() * words.length)];
+        initializeGame(); // Start the game after the words are loaded
+    })
+    .catch(error => console.error('Error loading words:', error));
+
         let currentAttempt = 0;
 
-        function initializeGame() {
-            const gameBoard = document.getElementById('game-board');
+function initializeGame() {
+    if (!targetWord) {
+        console.error("Target word not set. Ensure words are loaded before initializing.");
+        return;
+    }
 
-            for (let i = 0; i < maxAttempts; i++) {
-                const row = document.createElement('div');
-                row.classList.add('guess-row');
-                row.id = `guess-row-${i}`;
+    const gameBoard = document.getElementById('game-board');
+    gameBoard.innerHTML = ""; // Clear the board for reinitialization
 
-                for (let j = 0; j < targetWord.length; j++) {
-                    const box = document.createElement('div');
-                    box.classList.add('letter-box');
-                    row.appendChild(box);
-                }
+    for (let i = 0; i < maxAttempts; i++) {
+        const row = document.createElement('div');
+        row.classList.add('guess-row');
+        row.id = `guess-row-${i}`;
 
-                gameBoard.appendChild(row);
-            }
-
-            const inputRow = document.createElement('div');
-            inputRow.innerHTML = `
-                <input type="text" id="guess-input" maxlength="${targetWord.length}" placeholder="Enter guess">
-                <button onclick="makeGuess()">Submit</button>
-            `;
-            gameBoard.appendChild(inputRow);
+        for (let j = 0; j < targetWord.length; j++) {
+            const box = document.createElement('div');
+            box.classList.add('letter-box');
+            row.appendChild(box);
         }
+
+        gameBoard.appendChild(row);
+    }
+
+    const inputRow = document.createElement('div');
+    inputRow.innerHTML = `
+        <input type="text" id="guess-input" maxlength="${targetWord.length}" placeholder="Enter guess">
+        <button onclick="makeGuess()">Submit</button>
+    `;
+    gameBoard.appendChild(inputRow);
+}
 
         function makeGuess() {
             const input = document.getElementById('guess-input');
@@ -275,8 +291,6 @@ const targetWord = words[Math.floor(Math.random() * words.length)]; // Replace w
             document.querySelector('input').disabled = true;
             document.querySelector('button').disabled = true;
         }
-
-        initializeGame();
 
         function goBack() {
             window.location.href = 'index.html'; // Update with the actual home page URL
