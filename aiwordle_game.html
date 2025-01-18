@@ -185,7 +185,7 @@
             })
             .catch(error => console.error('Error loading dictionary:', error));
 
-        const targetWord = "house"; // Target word will be chosen after dictionary loads
+        let targetWord = "house"; // Target word will be chosen after dictionary loads
         let aiPossibleWords = [];
         const maxAttempts = 6;
         let currentAttempt = 0;
