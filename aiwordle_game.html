@@ -273,13 +273,14 @@ function makeGuess() {
         }
     }
 
-    // Increment the current attempt
+   // Increment after both turns
     currentAttempt++;
 
     // Check if max attempts have been reached
-    if (currentAttempt === maxAttempts) {
+    if (currentAttempt >= maxAttempts) {
         document.getElementById("result").textContent = `😞 Game over! The word was "${targetWord}".`;
         disableInputs();
+        return;
     }
 
     input.value = ""; // Clear the input for the next turn
@@ -314,8 +315,7 @@ function aiGuess() {
     console.log(`AI (${difficulty}) guessed:`, guess);
     return { guess, feedback };
 }
-
-        
+      
         function updateRow(row, guess, feedback) {
             for (let i = 0; i < guess.length; i++) {
                 const box = row.children[i];
